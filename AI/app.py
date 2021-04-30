@@ -1,3 +1,5 @@
+import pickle
+
 import jieba
 from numpy.core.multiarray import ndarray
 from sanic import Sanic, Request
@@ -9,12 +11,23 @@ from config import *
 from loadingData import wash_sentence
 from loadingModel import load, save
 
+
 app = Sanic("FakeNews")
 poly = PolynomialFeatures(degree=40)
+app.config.update(
+    {
+        'REDIS': {
+            'address': ('127.0.0.1', 6379)
+        }
+    }
 
+)
+from sanic_redis import SanicRedis
+
+redis = SanicRedis(app)
 
 @app.post("/VerifyRumor")
-async def verifyRumor(request:Request):
+async def verifyRumor(request: Request):
     try:
         text: str = request.form['text'][0]
         if text is None:
@@ -43,7 +56,7 @@ async def verifyRumor(request:Request):
 
 
 @app.post("/VerifyOtherWords")
-async def verifyOtherNews(request:Request):
+async def verifyOtherNews(request: Request):
     try:
         text: str = request.form['text'][0]
         if len(text) < 1:
@@ -73,8 +86,28 @@ async def verifyOtherNews(request:Request):
             "data": str(e)
         })
 
-# @app.post("/VerifyDIYModel")
-# async def verifyDIYModel(request:Request):
+
+@app.post("/VerifyDIYModel")
+async def verifyDIYModel(request: Request):
+    uuid = request.form['uuid'][0]
+    obj = await redis.conn.get(uuid + 'model')
+    model = pickle.loads(obj)
+    text = request.form['text'][0]
+    text = "&".join(jieba.cut(text))
+    text, words = model.filter(text)
+    text = text.replace("&", "")
+    return sanicJson({
+        "code": 200,
+        "success": True,
+        "data": {
+            "text": text,
+            "result": {
+                "type": model.type,
+                "words": words
+            }
+        }
+    })
+
 
 if __name__ == '__main__':
     rumor_model = load("./models/rum_model.pkl")

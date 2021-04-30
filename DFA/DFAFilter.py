@@ -32,7 +32,8 @@ class DFAFilter():
                 self.add(str(keyword).strip('\n'))
 
     def parse_by_data(self, data: str):
-        self.add(str(data).strip('\n'))
+        for keyword in data:
+            self.add(str(keyword).strip('\n'))
 
     def filter(self, message, repl="*"):
         fuck_words = []
