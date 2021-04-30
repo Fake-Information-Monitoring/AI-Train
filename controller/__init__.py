@@ -13,6 +13,10 @@ async def train(redis, text, uuid, types):
     model = getFilterByData(text, types)
     model = pickle.dumps(model)
     await redis.set(uuid + 'model', model)
+    requests.post('http://127.0.0.1:8080/v1/upload/addTrainModel', headers={
+        'uuid': uuid,
+        'type': types
+    }, files={'file': model})
 
 
 @bp.post("/toTrain")

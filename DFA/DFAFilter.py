@@ -2,12 +2,12 @@
 class DFAFilter():
     def __init__(self, type: str):
         self.keyword_chains = {}
-        self.delimit = '\x00'
+        self.delimit = '\r\n'
         self.type = type
 
     def add(self, keyword):
         keyword = keyword.lower()
-        chars = keyword.strip()
+        chars = keyword.strip(self.delimit)
         if not chars:
             return
         level = self.keyword_chains
@@ -32,7 +32,7 @@ class DFAFilter():
                 self.add(str(keyword).strip('\n'))
 
     def parse_by_data(self, data: str):
-        for keyword in data:
+        for keyword in data.split("\n"):
             self.add(str(keyword).strip('\n'))
 
     def filter(self, message, repl="*"):

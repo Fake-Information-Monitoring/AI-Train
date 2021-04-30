@@ -93,9 +93,7 @@ async def verifyDIYModel(request: Request):
     obj = await redis.conn.get(uuid + 'model')
     model = pickle.loads(obj)
     text = request.form['text'][0]
-    text = "&".join(jieba.cut(text))
     text, words = model.filter(text)
-    text = text.replace("&", "")
     return sanicJson({
         "code": 200,
         "success": True,

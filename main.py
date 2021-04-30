@@ -15,19 +15,10 @@ app.config.update(
 )
 from sanic_redis import SanicRedis
 
-redis = SanicRedis(app,config_name='REDIS')
+redis = SanicRedis(app, config_name='REDIS')
 from controller import bp
 
 app.blueprint(bp)
-
-
-async def set_redis(key: str, val: bytes):
-    await redis.conn.set(key, val)
-
-
-async def get_redis(key: str) -> object:
-    return await redis.conn.get(key)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5678, debug=True)
