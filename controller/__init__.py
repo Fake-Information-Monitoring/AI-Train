@@ -1,6 +1,6 @@
 import requests
 from sanic import Blueprint
-from sanic import Request, json
+from sanic.response import json
 
 bp = Blueprint('my_blueprint')
 
@@ -20,7 +20,7 @@ async def train(redis, text, uuid, types):
 
 
 @bp.post("/toTrain")
-async def getTrain(request: Request):
+async def getTrain(request):
     url = request.form.get("url")
     types = request.form.get("type")
     uuid = request.form.get("uuid")

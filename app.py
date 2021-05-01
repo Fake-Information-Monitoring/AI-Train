@@ -2,7 +2,7 @@ import pickle
 
 import jieba
 from numpy.core.multiarray import ndarray
-from sanic import Sanic, Request
+from sanic import Sanic
 from sanic.response import json as sanicJson
 from sklearn.preprocessing import PolynomialFeatures
 
@@ -26,7 +26,7 @@ from sanic_redis import SanicRedis
 redis = SanicRedis(app)
 
 @app.post("/VerifyRumor")
-async def verifyRumor(request: Request):
+async def verifyRumor(request):
     try:
         text: str = request.form['text'][0]
         if text is None:
@@ -55,7 +55,7 @@ async def verifyRumor(request: Request):
 
 
 @app.post("/VerifyOtherWords")
-async def verifyOtherNews(request: Request):
+async def verifyOtherNews(request):
     try:
         text: str = request.form['text'][0]
         if len(text) < 1:
@@ -87,7 +87,7 @@ async def verifyOtherNews(request: Request):
 
 
 @app.post("/VerifyDIYModel")
-async def verifyDIYModel(request: Request):
+async def verifyDIYModel(request):
     uuid = request.form['uuid'][0]
     obj = await redis.conn.get(uuid + 'model')
     model = pickle.loads(obj)
