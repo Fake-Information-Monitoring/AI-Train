@@ -33,3 +33,8 @@ async def getTrain(request):
         "success": True,
         "data": "success"
     })
+
+
+@bp.post("/")
+async def handler(request):
+    transport, protocol = await request.app.amqp.connect()
