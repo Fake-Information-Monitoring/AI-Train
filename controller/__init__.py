@@ -2,6 +2,8 @@ import requests
 from sanic import Blueprint
 from sanic.response import json
 
+import DFA
+
 bp = Blueprint('my_blueprint')
 
 import dill as pickle
@@ -29,10 +31,32 @@ async def getTrain(request):
     data = response.text
     await train(request.app.redis, data, uuid, types)
     return json({
-        "code": 200,
-        "success": True,
-        "data": "success"
-    })
+            "code": 200,
+            "success": False,
+            "data": {
+                "uuid":uuid
+            },
+            "isFake":False
+        })
+
+@bp.post("/VerifyDIYModel")
+async def verifyDIYModel(request):
+    redis = request.app.redis
+    uuid = request.form.get("uuid")
+    text = request.form.get("text")
+    model = await redis.get(uuid + 'model')
+    model:DFA.DFAFilter = pickle.loads(model)
+    text, words = model.filter(text)
+    isFake = True if(len(words)> 0) else False
+    data = {}
+    data['DIYModel'] = words
+    return json({
+            "code": 200,
+            "success": True,
+            "isFake": isFake,
+            "text": text,
+            "data": data
+        })
 
 
 @bp.post("/")
